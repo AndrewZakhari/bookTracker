@@ -7,16 +7,16 @@ services:
     container_name: postgres_db
     restart: always
     environment:
-      # These credentials will be used by the Flask API to connect
-      POSTGRES_USER: your_db_user
-      POSTGRES_PASSWORD: your_db_password
-      POSTGRES_DB: book_tracker_db
+      # Credentials are read from the .env file at the project root
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       # Persist data outside the container so it doesn't vanish on stop/rebuild
       - postgres_data:/var/lib/postgresql/data/
     ports:
       # Map the container port 5432 to host port 5432 (optional, for connecting tools like DBeaver)
-      - "5432:5432"
+      - "5433:5432"
 
   # 2. FLASK API SERVICE
   api:
@@ -28,29 +28,29 @@ services:
     command: sh -c "python wait_for_postgres.py && gunicorn --bind 0.0.0.0:5000 app:app" # Example command to wait for DB
     volumes:
       # Mount current directory into the container for easy development iteration
-      - .:/usr/src/app
+      - ./api:/usr/src/app
     ports:
       # Map the container port 5000 to host port 5000
       - "5000:5000"
-    environment:
-      # Pass the DB credentials and service name (which acts as the hostname)
-      DATABASE_URL: postgresql://your_db_user:your_db_password@db:5432/book_tracker_db
+    env_file:
+      # Pass all variables from the .env file to the container
+      - .env
     depends_on:
       - db
 
   # 3. REACT FRONTEND SERVICE (Placeholder)
-  frontend:
-    build: 
-      context: ./frontend  # Assuming your React code is in a 'frontend' sub-directory
-      dockerfile: Dockerfile.frontend # You'll need a separate Dockerfile for React
-    container_name: react_frontend
-    # If running in development, you might use 'npm start' directly without Gunicorn
-    # If using a production build, you'd use Nginx/other web server to serve the static files
-    ports:
-      # Map the container port (e.g., 3000 for dev or 80 for Nginx) to host port 3000
-      - "3000:3000" 
-    depends_on:
-      - api
+  # frontend:
+  #   build: 
+  #     context: ./frontend  # Assuming your React code is in a 'frontend' sub-directory
+  #     dockerfile: Dockerfile.frontend # You'll need a separate Dockerfile for React
+  #   container_name: react_frontend
+  #   # If running in development, you might use 'npm start' directly without Gunicorn
+  #   # If using a production build, you'd use Nginx/other web server to serve the static files
+  #   ports:
+  #     # Map the container port (e.g., 3000 for dev or 80 for Nginx) to host port 3000
+  #     - "3000:3000" 
+  #   depends_on:
+  #     - api
 
 volumes:
   # Define the named volume for persistent database data
