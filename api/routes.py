@@ -2,6 +2,12 @@ from flask import request, jsonify
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from models import db, User, Book, UserBook
 from services import search_books_by_query
+from flask_cors import cross_origin
+
+
+
+
+
 
 def init_routes(app):
     @app.route('/api/users/register', methods=['POST'])
@@ -24,6 +30,7 @@ def init_routes(app):
         return jsonify({'message': 'User created successfully'}), 201
 
     @app.route('/api/login', methods=['POST'])
+    @cross_origin(origins=["http://localhost:3000"])
     def login():
         data = request.get_json()
         username = data.get('username')

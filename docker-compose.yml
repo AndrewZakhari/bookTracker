@@ -38,19 +38,15 @@ services:
     depends_on:
       - db
 
-  # 3. REACT FRONTEND SERVICE (Placeholder)
-  # frontend:
-  #   build: 
-  #     context: ./frontend  # Assuming your React code is in a 'frontend' sub-directory
-  #     dockerfile: Dockerfile.frontend # You'll need a separate Dockerfile for React
-  #   container_name: react_frontend
-  #   # If running in development, you might use 'npm start' directly without Gunicorn
-  #   # If using a production build, you'd use Nginx/other web server to serve the static files
-  #   ports:
-  #     # Map the container port (e.g., 3000 for dev or 80 for Nginx) to host port 3000
-  #     - "3000:3000" 
-  #   depends_on:
-  #     - api
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: next_frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
 
 volumes:
   # Define the named volume for persistent database data
